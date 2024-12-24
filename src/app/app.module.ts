@@ -22,6 +22,7 @@ import { HttpLink } from 'apollo-angular/http';
 import { InMemoryCache } from '@apollo/client/core';
 import { CategoryModalComponent } from './component/category-modal/category-modal.component';
 import { ProductGridComponent } from './component/product-grid/product-grid.component';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,7 @@ import { ProductGridComponent } from './component/product-grid/product-grid.comp
         return {
           cache: new InMemoryCache(),
           link: httpLink.create({
-            uri: 'https://api.escuelajs.co/graphql'
+            uri: environment.graphqlUri
           })
         };
       },

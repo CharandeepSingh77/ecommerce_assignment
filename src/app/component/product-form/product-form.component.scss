@@ -7,7 +7,7 @@ $input-radius: 8px;
 $spacing: 1.5rem;
 $transition: 0.2s ease;
 
-// Mixins
+
 @mixin flex($justify: center) {
   display: flex;
   justify-content: $justify;

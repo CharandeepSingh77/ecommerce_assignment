@@ -36,7 +36,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadCategories();
     this.loadProducts();
-    
+
     setTimeout(() => {
       this.initializeProductModal();
     }, 1000);
@@ -90,13 +90,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   deleteCategory(event: Event, categoryId: string): void {
-    // Stop event propagation
+
     event?.stopPropagation();
-    
+
     this.graphqlService.deleteCategory(categoryId).subscribe({
       next: (success) => {
         if (success) {
-          // If electronics was deleted, change current category to 'all'
+
           if (categoryId === 'default_electronics' && this.currentCategory === 'electronics') {
             this.currentCategory = 'all';
           }
@@ -111,8 +111,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   public loadProducts(): void {
     console.log('Loading products...');
-    
-    // Load local products
+
     const savedProducts = localStorage.getItem('products');
     const localProducts: Product[] = savedProducts ? JSON.parse(savedProducts).map((product: any) => ({
       ...product,
@@ -120,8 +119,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       total: product.price,
       isLocal: true
     })) : [];
-    
-    // Load API products
+
     this.graphqlService.getProducts().subscribe({
       next: (products) => {
         console.log('API Products received:', products);
@@ -132,15 +130,15 @@ export class ProductsComponent implements OnInit, OnDestroy {
           images: product.images || [],
           isLocal: false
         }));
-        
-        // Combine API and local products with local products at the start
+
+
         this.productList = [...localProducts, ...apiProducts];
         this.applyFilters();
         console.log('Combined products:', this.productList);
       },
       error: (err) => {
         console.error('Error loading API products:', err);
-        // If API fails, show only local products
+
         this.productList = localProducts;
         this.applyFilters();
       }
@@ -149,8 +147,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   private applyFilters(): void {
     this.filteredProducts = [...this.productList];
-    
-    // Apply category filter if not 'all'
+
+
     if (this.currentCategory !== 'all') {
       this.filteredProducts = this.filteredProducts.filter(product => {
         return product.category?.name.toLowerCase() === this.currentCategory.toLowerCase();
@@ -158,28 +156,28 @@ export class ProductsComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleProductDelete(data: {event: Event, productId: string}): void {
+  handleProductDelete(data: { event: Event, productId: string }): void {
     const { event, productId } = data;
     event.stopPropagation();
-    
-    // Optimistically remove the product from the UI
+
+
     const productIndex = this.productList.findIndex(p => p.id === productId);
     if (productIndex !== -1) {
       const deletedProduct = this.productList[productIndex];
       this.productList = this.productList.filter(p => p.id !== productId);
       this.applyFilters();
-      
+
       if (productId.startsWith('local_')) {
-        // Delete from local storage
+
         const products = JSON.parse(localStorage.getItem('products') || '[]');
         const updatedProducts = products.filter((p: any) => p.id !== productId);
         localStorage.setItem('products', JSON.stringify(updatedProducts));
       } else {
-        // Delete from API
+
         this.graphqlService.deleteProduct(productId).subscribe({
           error: (error) => {
             console.error('Error deleting product:', error);
-            // Revert the optimistic update on error
+
             this.productList = [...this.productList.slice(0, productIndex), deletedProduct, ...this.productList.slice(productIndex)];
             this.applyFilters();
           }

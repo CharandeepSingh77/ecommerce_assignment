@@ -35,7 +35,7 @@ export class CartComponent implements OnInit {
       this.products = products;
     });
 
-    // Get the grand total from the service
+  
     this.cartService.getGrandTotal().subscribe((total: number) => {
       this.grandTotal = total;
     });

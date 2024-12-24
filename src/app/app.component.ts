@@ -17,13 +17,13 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Clear any existing login state on app start
+
     if (!this.authService.isAuthenticated()) {
       localStorage.removeItem('isLoggedIn');
       this.router.navigate(['/register']);
     }
 
-    // Subscribe to login state changes
+    
     this.authService.loginState$.subscribe(
       (loggedIn: boolean) => {
         this.isLoggedIn = loggedIn;
@@ -33,7 +33,7 @@ export class AppComponent implements OnInit {
       }
     );
 
-    // Update login state on route changes
+    
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {

@@ -20,27 +20,27 @@ export class GraphqlService {
   private localCategories: Category[] = [{
     id: 'default_electronics',
     name: 'electronics',
-    image: 'https://cdn-icons-png.flaticon.com/512/3659/3659899.png',
+    image: 'assets/images/default-category.svg',
     creationAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }];
 
   constructor(private apollo: Apollo) {
-    // Load local categories from localStorage, keeping the default electronics category
+
     const savedCategories = localStorage.getItem('local_categories');
     if (savedCategories) {
       const parsedCategories = JSON.parse(savedCategories);
-      // Ensure electronics category is always first
+
       this.localCategories = [
         this.localCategories[0],
         ...parsedCategories.filter((cat: Category) => cat.id !== 'default_electronics')
       ];
     }
-    // Always save to ensure electronics category exists
+
     localStorage.setItem('local_categories', JSON.stringify(this.localCategories));
   }
 
-  // Product Queries
+
   getProducts(filters?: ProductFilters): Observable<Product[]> {
     return this.apollo
       .query<{ products: Product[] }>({
@@ -79,7 +79,7 @@ export class GraphqlService {
           }
         `,
         variables: filters || {},
-        fetchPolicy: 'network-only' // Force fetch from network
+        fetchPolicy: 'network-only'
       })
       .pipe(map((result) => result.data.products));
   }
@@ -110,7 +110,6 @@ export class GraphqlService {
       .pipe(map((result) => result.data.product));
   }
 
-  // Product Mutations
   addProduct(data: CreateProductInput): Observable<Product> {
     return this.apollo
       .mutate<{ addProduct: Product }>({
@@ -205,7 +204,7 @@ export class GraphqlService {
       .pipe(map((result) => result.data!.deleteProduct));
   }
 
-  // Category Queries
+
   getCategories(): Observable<Category[]> {
     return new Observable<Category[]>(observer => {
       observer.next(this.localCategories);
@@ -225,7 +224,7 @@ export class GraphqlService {
     });
   }
 
-  // Category Mutations
+
   createCategory(data: CreateCategoryInput): Observable<Category> {
     return new Observable<Category>(observer => {
       const newCategory: Category = {
@@ -235,10 +234,10 @@ export class GraphqlService {
         updatedAt: new Date().toISOString()
       };
 
-      // Add new category after electronics
+
       this.localCategories.push(newCategory);
       localStorage.setItem('local_categories', JSON.stringify(this.localCategories));
-      
+
       observer.next(newCategory);
       observer.complete();
     });
@@ -246,7 +245,7 @@ export class GraphqlService {
 
   updateCategory(id: string, changes: UpdateCategoryInput): Observable<Category> {
     return new Observable<Category>(observer => {
-      // Prevent editing electronics category
+
       if (id === 'default_electronics') {
         observer.error(new Error('Cannot modify default electronics category'));
         return;
@@ -283,7 +282,7 @@ export class GraphqlService {
     });
   }
 
-  // User Queries
+
   getUser(id: string): Observable<any> {
     return this.apollo
       .query<{ user: any }>({
@@ -304,12 +303,12 @@ export class GraphqlService {
       .pipe(map((result) => result.data.user));
   }
 
-  // User Mutations
+
   updateUser(id: string, changes: { data: UpdateUserDto }): Observable<User> {
     return this.apollo
       .mutate<{ updateUser: User }>({
         mutation: UPDATE_USER_MUTATION,
-        variables: { 
+        variables: {
           id,
           changes: {
             name: changes.data.name,

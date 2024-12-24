@@ -15,7 +15,7 @@ export class CategoryService {
   private categoriesSubject = new BehaviorSubject<Category[]>([]);
 
   constructor() {
-    // Load categories from localStorage on init
+    
     const savedCategories = localStorage.getItem('categories');
     if (savedCategories) {
       this.categories = JSON.parse(savedCategories);
@@ -30,7 +30,7 @@ export class CategoryService {
   addCategory(category: Omit<Category, 'id'>) {
     const newCategory = {
       ...category,
-      id: Date.now().toString() // Simple way to generate unique ID
+      id: Date.now().toString() //
     };
 
     this.categories.push(newCategory);
@@ -46,7 +46,7 @@ export class CategoryService {
     this.categoriesSubject.next(this.categories);
   }
 
-  // Add update category method
+ 
   updateCategory(categoryId: string, updatedCategory: Omit<Category, 'id'>) {
     const index = this.categories.findIndex(cat => cat.id === categoryId);
     if (index !== -1) {

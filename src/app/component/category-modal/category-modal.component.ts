@@ -15,7 +15,7 @@ export class CategoryModalComponent implements OnInit {
   @Output() categoryUpdated = new EventEmitter<void>();
   @ViewChild('categoryForm') categoryForm!: NgForm;
 
-  public readonly defaultIcon = 'https://cdn-icons-png.flaticon.com/512/3659/3659899.png';
+  public readonly defaultIcon = 'assets/images/default-category.svg';
   public newCategory: Omit<GraphQLCategory, 'id'>;
   public editingCategory: GraphQLCategory | null = null;
   public categories: GraphQLCategory[] = [];
@@ -94,7 +94,7 @@ export class CategoryModalComponent implements OnInit {
       const categoryImage = this.newCategory.image;
       
       if (this.editingCategory) {
-        // Update existing category
+   
         const updatedCategory = {
           ...this.editingCategory,
           name: categoryName,
@@ -112,7 +112,7 @@ export class CategoryModalComponent implements OnInit {
           }
         });
       } else {
-        // Create new category
+
         const newCategory: CreateCategoryInput = {
           name: categoryName,
           image: categoryImage
@@ -122,7 +122,7 @@ export class CategoryModalComponent implements OnInit {
           next: () => {
             this.categoryAdded.emit();
             this.closeModal();
-            // Reset form
+      
             this.newCategory = {
               name: '',
               image: this.defaultIcon,

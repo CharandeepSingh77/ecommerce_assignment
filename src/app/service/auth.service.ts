@@ -46,8 +46,7 @@ export class AuthService {
 
   register(userData: Omit<CreateUserDto, 'avatar'>): Observable<User> {
     console.log('Auth Service - Registration data:', userData);
-    
-    // Add default avatar to user data
+   
     const userDataWithAvatar: CreateUserDto = {
       ...userData,
       avatar: 'https://api.lorem.space/image/face?w=150&h=150'
