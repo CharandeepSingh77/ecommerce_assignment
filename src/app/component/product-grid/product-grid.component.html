@@ -1,0 +1,31 @@
+<div class="products-grid">
+  <ng-container *ngIf="products.length > 0; else noProducts">
+    <div class="product-card" *ngFor="let product of products">
+      <div class="product-image">
+        <img *ngIf="product.images?.length" [src]="product.images[0]" [alt]="product.title">
+        <div *ngIf="!product.images?.length" class="no-image">No image available</div>
+        <button class="btn-delete" (click)="onDeleteProduct($event, product.id)" title="Delete Product">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+      <div class="product-details">
+        <h5 class="product-title" [title]="product.title">{{product.title}}</h5>
+        <p class="product-description">{{product.description}}</p>
+        <div class="product-footer">
+          <span class="product-price">${{product.price}}</span>
+          <button class="btn-add-cart" (click)="addToCart(product)">
+            <i class="fas fa-cart-plus"></i>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  
+  <ng-template #noProducts>
+    <div class="no-products">
+      <i class="fas fa-box-open"></i>
+      <p>No products found</p>
+    </div>
+  </ng-template>
+</div>

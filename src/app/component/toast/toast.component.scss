@@ -1,0 +1,58 @@
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+}
+
+.toast {
+  min-width: 300px;
+  
+  &.success {
+    border-left: 4px solid #198754;
+  }
+  
+  &.error {
+    border-left: 4px solid #dc3545;
+  }
+  
+  &.info {
+    border-left: 4px solid #0dcaf0;
+  }
+}
+
+.toast-header {
+  background-color: rgba(255, 255, 255, 0.95);
+  
+  .fas {
+    font-size: 1.1rem;
+  }
+}
+
+.toast-body {
+  background-color: white;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #666;
+  font-size: 16px;
+
+  &:hover {
+    color: #333;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

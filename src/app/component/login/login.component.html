@@ -1,0 +1,50 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2 class="text-center mb-4">Sign In</h2>
+    <form [formGroup]="form" (ngSubmit)="login()">
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input 
+          type="email" 
+          class="form-control" 
+          formControlName="email" 
+          placeholder="Enter your email"
+          [ngClass]="{'is-invalid': form.get('email')?.invalid && form.get('email')?.touched}"
+        >
+        <div class="invalid-feedback" *ngIf="form.get('email')?.errors?.['required']">
+          Required
+        </div>
+        <div class="invalid-feedback" *ngIf="form.get('email')?.errors?.['email']">
+          Invalid email
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">Password</label>
+        <input 
+          type="password" 
+          class="form-control" 
+          formControlName="password"
+          placeholder="Enter your password"
+          [ngClass]="{'is-invalid': form.get('password')?.invalid && form.get('password')?.touched}"
+        >
+        <div class="invalid-feedback" *ngIf="form.get('password')?.errors?.['required']">
+          Required
+        </div>
+        <div class="invalid-feedback" *ngIf="form.get('password')?.errors?.['minlength']">
+          Min 6 characters
+        </div>
+      </div>
+
+      <div class="alert alert-danger mb-3" *ngIf="error">{{ error }}</div>
+
+      <button type="submit" class="btn btn-primary w-100 mb-3" [disabled]="form.invalid">
+        Sign In
+      </button>
+      
+      <div class="text-center">
+        Don't have an account? <a routerLink="/register">Create Account</a>
+      </div>
+    </form>
+  </div>
+</div>
