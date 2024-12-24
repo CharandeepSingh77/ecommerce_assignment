@@ -1,59 +1,157 @@
-# Pt
+# E-Commerce Angular Application
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.5.
+A modern e-commerce application built with **Angular 17** and **GraphQL**, featuring product management, category management, shopping cart functionality, and user authentication.
 
-## Development server
+---
 
-To start a local development server, run:
+## Features
 
-```bash
-ng serve
-```
+- **Product Management**
+  - Browse products with filters
+  - View product details
+  - Add/Edit/Delete products
+  - Product categorization
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Shopping Cart**
+  - Add/Remove items
+  - Adjust quantities
+  - Calculate total price
+  - Checkout process
 
-## Code scaffolding
+- **User Management**
+  - User registration
+  - Authentication
+  - Profile management
+  - JWT token handling
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- **Category Management**
+  - Browse categories
+  - Add/Edit/Delete categories
+  - Default electronics category
 
-```bash
-ng generate component component-name
-```
+---
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Tech Stack
 
-```bash
-ng generate --help
-```
+- **Frontend**
+  - Angular 17
+  - Apollo Angular 8
+  - Bootstrap 5.3
+  - RxJS 7.8
 
-## Building
+- **API**
+  - GraphQL API (https://api.escuelajs.co/graphql)
+  - Apollo Client for GraphQL operations
 
-To build the project run:
+---
 
-```bash
-ng build
-```
+## Prerequisites
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Before you begin, ensure you have the following installed:
 
-## Running unit tests
+- **Node.js** (v14 or higher)
+- **npm** (v6 or higher)
+- **Angular CLI** (v17)
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+---
 
-```bash
-ng test
-```
+## Installation
 
-## Running end-to-end tests
+Follow these steps to set up the project locally:
 
-For end-to-end (e2e) testing, run:
+1. **Clone the repository**:
+   \`\`\`bash
+   git clone [repository-url]
+   cd pt
+   \`\`\`
 
-```bash
-ng e2e
-```
+2. **Install dependencies**:
+   \`\`\`bash
+   npm install
+   \`\`\`
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+3. **Start the development server**:
+   \`\`\`bash
+   ng serve
+   \`\`\`
 
-## Additional Resources
+4. **Open your browser** and navigate to:
+   \`\`\`bash
+   http://localhost:4200
+   \`\`\`
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+---
+
+## Project Structure
+
+Here is the folder structure of the project:
+
+\`\`\`
+src/
+├── app/
+│   ├── components/       # UI components
+│   ├── services/        # Business logic and API calls
+│   ├── models/          # TypeScript interfaces
+│   ├── guards/          # Route guards
+│   └── graphql/         # GraphQL queries and mutations
+├── assets/             # Static files
+└── styles/             # Global styles
+\`\`\`
+
+---
+
+## Key Features Implementation
+
+### Authentication
+
+- JWT-based authentication
+- Token refresh mechanism
+- Protected routes with guards
+
+### Product Management
+
+- GraphQL queries for product operations
+- Real-time updates with Apollo Client
+- Image handling and preview
+
+### Shopping Cart
+
+- In-memory cart management
+- Reactive updates using \`BehaviorSubject\`
+- Cart total calculation
+
+### Category Management
+
+- Local storage for offline access
+- Default electronics category
+- Category CRUD operations
+
+---
+
+## Available Scripts
+
+You can use the following commands to run and build the project:
+
+- **Start the development server**:  
+  ng serve
+ 
+
+- **Build the project**:  
+  ng build
+
+- **Run unit tests**: 
+  ng test
+
+- **Build for production**:  
+  ng build --prod
+
+
+---
+
+
+
+## Acknowledgments
+
+- **Angular Team** for the amazing framework
+- **Apollo GraphQL** for the excellent GraphQL client
+- **Bootstrap Team** for the UI components
