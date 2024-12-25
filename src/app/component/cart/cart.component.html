@@ -41,7 +41,7 @@
                                 <span class="quantity-value">{{item.quantity}}</span>
                                 <button class="btn btn-sm btn-secondary" (click)="increaseQuantity(item)">+</button>
                             </td>
-                            <td style="width: 12%;">${{item.total}}</td>
+                            <td style="width: 12%;">${{cartService.getItemTotal(item)}}</td>
                             <td>
                                 <button (click)="removeItem(item)" class="btn btn-danger"><i
                                         class="fas fa-trash-alt"></i></button>

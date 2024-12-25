@@ -2,17 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CartService } from '../../service/cart.service';
 import { ToastService } from '../../service/toast.service';
 import { Router } from '@angular/router';
-
-interface CartItem {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  quantity: number;
-  total: number;
-  image: string;
-  category: string;
-}
+import { firstValueFrom } from 'rxjs';
+import { CartItem } from '../../models/cart.types';
 
 @Component({
   selector: 'app-cart',
@@ -25,97 +16,62 @@ export class CartComponent implements OnInit {
   showCheckoutForm = false;
 
   constructor(
-    private cartService: CartService,
+    public cartService: CartService,
     private toastService: ToastService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.cartService.getProducts().subscribe((products: CartItem[]) => {
+    this.cartService.getProducts().subscribe(products => {
       this.products = products;
     });
 
-  
-    this.cartService.getGrandTotal().subscribe((total: number) => {
+    this.cartService.getGrandTotal().subscribe(total => {
       this.grandTotal = total;
     });
   }
 
-  removeItem(item: CartItem): void {
-    this.cartService.removeCartItem(item);
+  async removeItem(item: CartItem): Promise<void> {
+    await firstValueFrom(this.cartService.removeCartItem(item));
+    this.toastService.showToast('Item removed from cart', 'success');
   }
 
-  emptyCart(): void {
-    this.cartService.removeAllCart();
+  async emptyCart(): Promise<void> {
+    await firstValueFrom(this.cartService.removeAllCart());
+    this.toastService.showToast('Cart cleared', 'success');
   }
 
-  increaseQuantity(item: CartItem): void {
-    item.quantity = (item.quantity || 1) + 1;
-    item.total = item.price * item.quantity;
-    this.updateTotalPrice();
+  async increaseQuantity(item: CartItem): Promise<void> {
+    await firstValueFrom(this.cartService.updateQuantity(item, item.quantity + 1));
   }
 
-  decreaseQuantity(item: CartItem): void {
+  async decreaseQuantity(item: CartItem): Promise<void> {
     if (item.quantity > 1) {
-      item.quantity--;
-      item.total = item.price * item.quantity;
-      this.updateTotalPrice();
+      await firstValueFrom(this.cartService.updateQuantity(item, item.quantity - 1));
     }
-  }
-
-  checkout(): void {
-    if (this.products.length === 0) {
-      console.error('Your cart is empty');
-      return;
-    }
-
-    const orderData = {
-      total: this.grandTotal,
-      items: this.products
-    };
-
-    this.cartService.processCheckout(orderData).subscribe({
-      next: (response) => {
-        this.toastService.showToast('Order placed successfully!', 'success');
-        this.cartService.removeAllCart();
-        this.showCheckoutForm = false;
-      },
-      error: (error) => {
-        this.toastService.showToast('Error processing order. Please try again.', 'error');
-      }
-    });
   }
 
   openCheckoutForm(): void {
     if (this.products.length > 0) {
       this.showCheckoutForm = true;
+    } else {
+      this.toastService.showToast('Your cart is empty', 'error');
     }
   }
 
-  onFormSubmit(formData: any): void {
-    const orderData = {
-      ...formData,
-      total: this.grandTotal,
-      items: this.products
-    };
+  async onFormSubmit(formData: any): Promise<void> {
+    if (this.products.length === 0) {
+      this.toastService.showToast('Your cart is empty', 'error');
+      return;
+    }
 
-    this.cartService.processCheckout(orderData).subscribe({
-      next: (response) => {
-        this.toastService.showToast('Order placed successfully!', 'success');
-        this.cartService.removeAllCart();
-        this.showCheckoutForm = false;
-      },
-      error: (error) => {
-        this.toastService.showToast('Error processing order. Please try again.', 'error');
-      }
-    });
-  }
-
-  private updateTotalPrice(): void {
-    let total = 0;
-    this.products.forEach(item => {
-      total += item.total;
-    });
-    this.grandTotal = total;
+    try {
+      await firstValueFrom(this.cartService.removeAllCart());
+      this.toastService.showToast('Order placed successfully!', 'success');
+      this.showCheckoutForm = false;
+      this.router.navigate(['/products']);
+    } catch (error) {
+      this.toastService.showToast('Error processing order', 'error');
+    }
   }
 }

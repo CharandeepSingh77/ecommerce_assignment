@@ -1,7 +1,8 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
-import { Category as GraphQLCategory, CreateCategoryInput } from '../../models/graphql.types';
-import { GraphqlService } from '../../service/graphql.service';
+import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { GraphqlService } from '../../service/graphql.service';
+import { Category as GraphQLCategory, CreateCategoryInput } from '../../models/graphql.types';
+import { firstValueFrom } from 'rxjs';
 
 declare var bootstrap: any;
 
@@ -32,38 +33,54 @@ export class CategoryModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
-    setTimeout(() => {
-      this.initializeModal();
-    }, 1000);
+    this.initializeModal();
   }
 
-  private initializeModal(): void {
+  async loadCategories(): Promise<void> {
     try {
-      const categoryModalEl = document.getElementById('categoryModal');
-      if (categoryModalEl) {
-        this.modalInstance = new bootstrap.Modal(categoryModalEl, {
-          keyboard: true,
-          backdrop: true,
-          focus: true
-        });
-      }
+      this.categories = await firstValueFrom(this.graphqlService.getCategories());
     } catch (error) {
-      console.error('Error initializing modal:', error);
+      console.error('Error loading categories:', error);
     }
   }
 
-  loadCategories(): void {
-    this.graphqlService.getCategories().subscribe({
-      next: (categories) => {
-        this.categories = categories;
-      },
-      error: (error: Error) => {
-        console.error('Error loading categories:', error);
+  async saveCategory(): Promise<void> {
+    try {
+      if (this.newCategory.name.trim()) {
+        const categoryName = this.newCategory.name.trim();
+        const categoryImage = this.newCategory.image;
+        
+        if (this.editingCategory) {
+          const updatedCategory = {
+            ...this.editingCategory,
+            name: categoryName,
+            image: categoryImage,
+            updatedAt: new Date().toISOString()
+          };
+          await firstValueFrom(this.graphqlService.updateCategory(this.editingCategory.id, updatedCategory));
+          this.categoryUpdated.emit();
+        } else {
+          const newCategory: CreateCategoryInput = {
+            name: categoryName,
+            image: categoryImage
+          };
+          await firstValueFrom(this.graphqlService.createCategory(newCategory));
+          this.categoryAdded.emit();
+          this.newCategory = {
+            name: '',
+            image: this.defaultIcon,
+            creationAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+        }
+        this.modalInstance.hide();
       }
-    });
+    } catch (error) {
+      console.error('Error saving category:', error);
+    }
   }
 
-  public openModal(category?: GraphQLCategory): void {
+  openModal(category?: GraphQLCategory): void {
     if (category) {
       this.editingCategory = category;
       this.newCategory = {
@@ -81,60 +98,25 @@ export class CategoryModalComponent implements OnInit {
         updatedAt: new Date().toISOString()
       };
     }
-    this.modalInstance?.show();
+    this.modalInstance.show();
   }
 
-  public closeModal(): void {
-    this.modalInstance?.hide();
-  }
-
-  saveCategory(): void {
-    if (this.newCategory.name.trim()) {
-      const categoryName = this.newCategory.name.trim();
-      const categoryImage = this.newCategory.image;
-      
-      if (this.editingCategory) {
-   
-        const updatedCategory = {
-          ...this.editingCategory,
-          name: categoryName,
-          image: categoryImage,
-          updatedAt: new Date().toISOString()
-        };
-        
-        this.graphqlService.updateCategory(this.editingCategory.id, updatedCategory).subscribe({
-          next: () => {
-            this.categoryUpdated.emit();
-            this.closeModal();
-          },
-          error: (error: Error) => {
-            console.error('Error updating category:', error);
-          }
-        });
-      } else {
-
-        const newCategory: CreateCategoryInput = {
-          name: categoryName,
-          image: categoryImage
-        };
-        
-        this.graphqlService.createCategory(newCategory).subscribe({
-          next: () => {
-            this.categoryAdded.emit();
-            this.closeModal();
-      
-            this.newCategory = {
-              name: '',
-              image: this.defaultIcon,
-              creationAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
-            };
-          },
-          error: (error: Error) => {
-            console.error('Error creating category:', error);
-          }
+  private initializeModal(): void {
+    try {
+      const categoryModalEl = document.getElementById('categoryModal');
+      if (categoryModalEl) {
+        this.modalInstance = new bootstrap.Modal(categoryModalEl, {
+          keyboard: true,
+          backdrop: true,
+          focus: true
         });
       }
+    } catch (error) {
+      console.error('Error initializing modal:', error);
     }
+  }
+
+  closeModal(): void {
+    this.modalInstance?.hide();
   }
 }

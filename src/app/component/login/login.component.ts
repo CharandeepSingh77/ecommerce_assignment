@@ -23,19 +23,19 @@ export class LoginComponent {
     });
   }
 
-  login() {
+  async login() {
     if (this.form.valid) {
-      const { email, password } = this.form.value;
-      this.auth.login(email, password).subscribe({
-        next: success => {
-          if (success) {
-            this.router.navigate(['/products']);
-          } else {
-            this.error = 'Invalid credentials';
-          }
-        },
-        error: err => this.error = err.message || 'Login failed'
-      });
+      try {
+        const { email, password } = this.form.value;
+        const success = await this.auth.login(email, password);
+        if (success) {
+          await this.router.navigate(['/products']);
+        } else {
+          this.error = 'Invalid credentials';
+        }
+      } catch (err: any) {
+        this.error = err.message || 'Login failed';
+      }
     }
   }
 }

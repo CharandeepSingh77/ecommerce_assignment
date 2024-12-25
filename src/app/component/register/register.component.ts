@@ -25,13 +25,15 @@ export class RegisterComponent {
     }, { validator: this.matchPasswords });
   }
 
-  register() {
+  async register() {
     if (this.form.valid) {
-      const { name, email, password } = this.form.value;
-      this.auth.register({ name, email, password }).subscribe({
-        next: () => this.router.navigate(['/login']),
-        error: err => this.error = err.message || 'Registration failed'
-      });
+      try {
+        const { name, email, password } = this.form.value;
+        await this.auth.register({ name, email, password });
+        await this.router.navigate(['/login']);
+      } catch (err: any) {
+        this.error = err.message || 'Registration failed';
+      }
     }
   }
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
-import { Observable, map, catchError } from 'rxjs';
+import { Observable, map, catchError, firstValueFrom } from 'rxjs';
 import {
   Product,
   Category,
@@ -8,7 +8,7 @@ import {
   CreateProductInput,
   UpdateProductInput,
   CreateCategoryInput,
-  UpdateCategoryInput,
+  UpdateCategoryInput
 } from '../models/graphql.types';
 import { User, UpdateUserDto } from '../models/user.types';
 import { UPDATE_USER_MUTATION } from '../graphql/auth.graphql';
@@ -26,21 +26,18 @@ export class GraphqlService {
   }];
 
   constructor(private apollo: Apollo) {
-
     const savedCategories = localStorage.getItem('local_categories');
     if (savedCategories) {
       const parsedCategories = JSON.parse(savedCategories);
-
       this.localCategories = [
         this.localCategories[0],
         ...parsedCategories.filter((cat: Category) => cat.id !== 'default_electronics')
       ];
     }
-
     localStorage.setItem('local_categories', JSON.stringify(this.localCategories));
   }
 
-
+  // Product Operations
   getProducts(filters?: ProductFilters): Observable<Product[]> {
     return this.apollo
       .query<{ products: Product[] }>({
@@ -84,6 +81,11 @@ export class GraphqlService {
       .pipe(map((result) => result.data.products));
   }
 
+  async getProductsAsync(filters?: ProductFilters): Promise<Product[]> {
+    const result = await firstValueFrom(this.getProducts(filters));
+    return result;
+  }
+
   getProduct(id: string): Observable<Product> {
     return this.apollo
       .query<{ product: Product }>({
@@ -108,6 +110,11 @@ export class GraphqlService {
         variables: { id },
       })
       .pipe(map((result) => result.data.product));
+  }
+
+  async getProductAsync(id: string): Promise<Product> {
+    const result = await firstValueFrom(this.getProduct(id));
+    return result;
   }
 
   addProduct(data: CreateProductInput): Observable<Product> {
@@ -155,14 +162,12 @@ export class GraphqlService {
           }
         ]
       })
-      .pipe(
-        map((result) => {
-          if (!result.data?.addProduct) {
-            throw new Error('Failed to add product');
-          }
-          return result.data.addProduct;
-        })
-      );
+      .pipe(map((result) => result.data!.addProduct));
+  }
+
+  async addProductAsync(data: CreateProductInput): Promise<Product> {
+    const result = await firstValueFrom(this.addProduct(data));
+    return result;
   }
 
   updateProduct(id: string, changes: UpdateProductInput): Observable<Product> {
@@ -191,6 +196,11 @@ export class GraphqlService {
       .pipe(map((result) => result.data!.updateProduct));
   }
 
+  async updateProductAsync(id: string, changes: UpdateProductInput): Promise<Product> {
+    const result = await firstValueFrom(this.updateProduct(id, changes));
+    return result;
+  }
+
   deleteProduct(id: string): Observable<boolean> {
     return this.apollo
       .mutate<{ deleteProduct: boolean }>({
@@ -204,12 +214,22 @@ export class GraphqlService {
       .pipe(map((result) => result.data!.deleteProduct));
   }
 
+  async deleteProductAsync(id: string): Promise<boolean> {
+    const result = await firstValueFrom(this.deleteProduct(id));
+    return result;
+  }
 
+  // Category Operations
   getCategories(): Observable<Category[]> {
     return new Observable<Category[]>(observer => {
       observer.next(this.localCategories);
       observer.complete();
     });
+  }
+
+  async getCategoriesAsync(): Promise<Category[]> {
+    const result = await firstValueFrom(this.getCategories());
+    return result;
   }
 
   getCategory(id: string): Observable<Category> {
@@ -224,6 +244,10 @@ export class GraphqlService {
     });
   }
 
+  async getCategoryAsync(id: string): Promise<Category> {
+    const result = await firstValueFrom(this.getCategory(id));
+    return result;
+  }
 
   createCategory(data: CreateCategoryInput): Observable<Category> {
     return new Observable<Category>(observer => {
@@ -234,7 +258,6 @@ export class GraphqlService {
         updatedAt: new Date().toISOString()
       };
 
-
       this.localCategories.push(newCategory);
       localStorage.setItem('local_categories', JSON.stringify(this.localCategories));
 
@@ -243,9 +266,13 @@ export class GraphqlService {
     });
   }
 
+  async createCategoryAsync(data: CreateCategoryInput): Promise<Category> {
+    const result = await firstValueFrom(this.createCategory(data));
+    return result;
+  }
+
   updateCategory(id: string, changes: UpdateCategoryInput): Observable<Category> {
     return new Observable<Category>(observer => {
-
       if (id === 'default_electronics') {
         observer.error(new Error('Cannot modify default electronics category'));
         return;
@@ -268,6 +295,11 @@ export class GraphqlService {
     });
   }
 
+  async updateCategoryAsync(id: string, changes: UpdateCategoryInput): Promise<Category> {
+    const result = await firstValueFrom(this.updateCategory(id, changes));
+    return result;
+  }
+
   deleteCategory(id: string): Observable<boolean> {
     return new Observable<boolean>(observer => {
       const index = this.localCategories.findIndex(c => c.id === id);
@@ -282,10 +314,15 @@ export class GraphqlService {
     });
   }
 
+  async deleteCategoryAsync(id: string): Promise<boolean> {
+    const result = await firstValueFrom(this.deleteCategory(id));
+    return result;
+  }
 
-  getUser(id: string): Observable<any> {
+  // User Operations
+  getUser(id: string): Observable<User> {
     return this.apollo
-      .query<{ user: any }>({
+      .query<{ user: User }>({
         query: gql`
           query GetUser($id: ID!) {
             user(id: $id) {
@@ -303,6 +340,10 @@ export class GraphqlService {
       .pipe(map((result) => result.data.user));
   }
 
+  async getUserAsync(id: string): Promise<User> {
+    const result = await firstValueFrom(this.getUser(id));
+    return result;
+  }
 
   updateUser(id: string, changes: { data: UpdateUserDto }): Observable<User> {
     return this.apollo
@@ -332,5 +373,10 @@ export class GraphqlService {
           throw new Error('Failed to update profile. Please try again.');
         })
       );
+  }
+
+  async updateUserAsync(id: string, changes: { data: UpdateUserDto }): Promise<User> {
+    const result = await firstValueFrom(this.updateUser(id, changes));
+    return result;
   }
 }

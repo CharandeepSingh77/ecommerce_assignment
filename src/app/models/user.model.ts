@@ -11,6 +11,7 @@ export interface User {
 export interface Login {
   access_token: string;
   refresh_token: string;
+  user: User;
 }
 
 export interface CreateUserDto {

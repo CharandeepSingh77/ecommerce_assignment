@@ -1,13 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../../service/cart.service';
 import { Router } from '@angular/router';
-
-interface CartItem {
-  id: number;
-  title: string;
-  price: number;
-  quantity: number;
-}
+import { CartItem } from '../../models/cart.types';
 
 @Component({
   selector: 'app-header',
@@ -15,7 +9,6 @@ interface CartItem {
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
-
   public totalItem: number = 0;
   public searchTerm: string = '';
 
@@ -23,7 +16,7 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.cartService.getProducts()
-      .subscribe((products: any[]) => {
+      .subscribe((products: CartItem[]) => {
         this.totalItem = products.length;
       });
   }

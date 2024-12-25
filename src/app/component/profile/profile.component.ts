@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ProfileService, UserProfile } from '../../service/profile.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
@@ -21,16 +22,31 @@ export class ProfileComponent {
       email: ['', [Validators.required, Validators.email]]
     });
 
-    this.profile.getProfile().subscribe(data => 
-      data && this.form.patchValue(data)
-    );
+    this.loadProfile();
   }
 
-  save() {
+  private async loadProfile(): Promise<void> {
+    try {
+      const profileData = await firstValueFrom(this.profile.getProfile());
+      if (profileData) {
+        this.form.patchValue(profileData);
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    }
+  }
+
+  async save(): Promise<void> {
     if (this.form.valid) {
-      const formValue = this.form.value as UserProfile;
-      this.profile.updateProfile(formValue)
-        .subscribe(() => this.router.navigate(['/products']));
+      try {
+        const formValue = this.form.value as UserProfile;
+        const updatedProfile = await firstValueFrom(this.profile.updateProfile(formValue));
+        if (updatedProfile) {
+          await this.router.navigate(['/products']);
+        }
+      } catch (error) {
+        console.error('Error saving profile:', error);
+      }
     }
   }
 }

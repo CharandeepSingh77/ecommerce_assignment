@@ -2,7 +2,7 @@ import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { GraphqlService } from '../../service/graphql.service';
 import { CreateProductInput, Category } from '../../models/graphql.types';
-import { finalize } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-product-form',
@@ -34,6 +34,14 @@ export class ProductFormComponent implements OnInit {
     this.loadCategories();
   }
 
+  async loadCategories(): Promise<void> {
+    try {
+      this.categories = await firstValueFrom(this.graphql.getCategories());
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  }
+
   onFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
@@ -51,39 +59,50 @@ export class ProductFormComponent implements OnInit {
     if (!this.showForm) this.resetForm();
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.form.invalid) return;
 
     this.loading = true;
     const { title, price, description, categoryId, image } = this.form.value;
     
-    const product = {
-      id: `local_${Date.now()}`,
+    // First try to add to API
+    const productInput: CreateProductInput = {
       title,
       price: Number(price),
       description,
       categoryId: Number(categoryId),
-      images: [image],
-      image,
-      category: this.categories.find(cat => cat.id === categoryId),
-      createdAt: new Date().toISOString()
+      images: [image]
     };
 
-    this.saveToLocalStorage(product);
-    this.resetForm();
-    this.productAdded.emit();
-    this.toggleForm();
-    this.loading = false;
-  }
+    try {
+      await firstValueFrom(this.graphql.addProduct(productInput));
+      // Success: Product added to API
+      this.resetForm();
+      this.productAdded.emit();
+      this.toggleForm();
+    } catch (error: any) {
+      console.error('Failed to add product to API, falling back to localStorage:', error);
+      
+      // Fallback: Save to localStorage
+      const localProduct = {
+        id: `local_${Date.now()}`,
+        title,
+        price: Number(price),
+        description,
+        categoryId: Number(categoryId),
+        images: [image],
+        image,
+        category: this.categories.find(cat => cat.id === categoryId),
+        createdAt: new Date().toISOString()
+      };
 
-  private loadCategories(): void {
-    this.loading = true;
-    this.graphql.getCategories()
-      .pipe(finalize(() => this.loading = false))
-      .subscribe({
-        next: categories => this.categories = categories,
-        error: () => this.error = 'Failed to load categories'
-      });
+      this.saveToLocalStorage(localProduct);
+      this.resetForm();
+      this.productAdded.emit();
+      this.toggleForm();
+    } finally {
+      this.loading = false;
+    }
   }
 
   private resetForm(): void {

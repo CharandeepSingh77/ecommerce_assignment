@@ -53,3 +53,28 @@ export interface UpdateCategoryInput {
   name?: string;
   image?: string;
 }
+
+export interface CartItem {
+  id: string;
+  productId: string;
+  quantity: number;
+  product: Product;
+}
+
+export interface Cart {
+  id: string;
+  userId: string;
+  items: CartItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AddToCartInput {
+  productId: string;
+  quantity: number;
+}
+
+export interface UpdateCartItemInput {
+  cartItemId: string;
+  quantity: number;
+}

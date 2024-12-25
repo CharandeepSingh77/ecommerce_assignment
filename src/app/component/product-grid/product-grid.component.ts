@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Product as GraphQLProduct } from '../../models/graphql.types';
 import { CartService } from '../../service/cart.service';
+import { firstValueFrom } from 'rxjs';
 
 interface Product extends GraphQLProduct {
   quantity: number;
@@ -17,7 +18,7 @@ interface Product extends GraphQLProduct {
 })
 export class ProductGridComponent {
   @Input() products: Product[] = [];
-  @Output() deleteProduct = new EventEmitter<{event: Event, productId: string}>();
+  @Output() deleteProduct = new EventEmitter<{ event: Event; productId: string }>();
 
   constructor(private cartService: CartService) {}
 
@@ -26,7 +27,7 @@ export class ProductGridComponent {
     this.deleteProduct.emit({ event, productId });
   }
 
-  addToCart(product: Product): void {
-    this.cartService.addToCart(product);
+  async addToCart(product: Product): Promise<void> {
+    await firstValueFrom(this.cartService.addToCart(product));
   }
 }

@@ -1,8 +1,9 @@
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { GraphqlService } from '../../service/graphql.service';
 import { CartService } from '../../service/cart.service';
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { Product as GraphQLProduct, Category as GraphQLCategory } from '../../models/graphql.types';
 import { CategoryModalComponent } from '../category-modal/category-modal.component';
+import { Product as GraphQLProduct, Category as GraphQLCategory } from '../../models/graphql.types';
+import { firstValueFrom } from 'rxjs';
 
 declare var bootstrap: any;
 
@@ -57,6 +58,49 @@ export class ProductsComponent implements OnInit, OnDestroy {
     }
   }
 
+  async loadProducts(): Promise<void> {
+    console.log('Loading products...');
+
+    const savedProducts = localStorage.getItem('products');
+    const localProducts: Product[] = savedProducts ? JSON.parse(savedProducts).map((product: any) => ({
+      ...product,
+      quantity: 1,
+      total: product.price,
+      isLocal: true
+    })) : [];
+
+    try {
+      const products = await firstValueFrom(this.graphqlService.getProducts());
+      console.log('API Products received:', products);
+      const apiProducts = products.map(product => ({
+        ...product,
+        quantity: 1,
+        total: product.price,
+        images: product.images || [],
+        isLocal: false
+      }));
+
+      this.productList = [...localProducts, ...apiProducts];
+      this.applyFilters();
+      console.log('Combined products:', this.productList);
+    } catch (err) {
+      console.error('Error loading API products:', err);
+
+      this.productList = localProducts;
+      this.applyFilters();
+    }
+  }
+
+  async loadCategories(): Promise<void> {
+    try {
+      const categories = await firstValueFrom(this.graphqlService.getCategories());
+      this.categories = categories;
+      this.applyFilters();
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  }
+
   public openCategoryModal(event?: Event, category?: GraphQLCategory): void {
     if (event) {
       event.stopPropagation();
@@ -72,116 +116,44 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.loadCategories();
   }
 
-  loadCategories(): void {
-    this.graphqlService.getCategories().subscribe({
-      next: (categories) => {
-        this.categories = categories;
-        this.applyFilters();
-      },
-      error: (error) => {
-        console.error('Error loading categories:', error);
-      }
-    });
-  }
-
-  filter(category: string): void {
-    this.currentCategory = category;
-    this.applyFilters();
-  }
-
-  deleteCategory(event: Event, categoryId: string): void {
-
+  async deleteCategory(event: Event, categoryId: string): Promise<void> {
     event?.stopPropagation();
 
-    this.graphqlService.deleteCategory(categoryId).subscribe({
-      next: (success) => {
-        if (success) {
-
-          if (categoryId === 'default_electronics' && this.currentCategory === 'electronics') {
-            this.currentCategory = 'all';
-          }
-          this.loadCategories();
-        }
-      },
-      error: (error) => {
-        console.error('Error deleting category:', error);
+    try {
+      await firstValueFrom(this.graphqlService.deleteCategory(categoryId));
+      if (categoryId === 'default_electronics' && this.currentCategory === 'electronics') {
+        this.currentCategory = 'all';
       }
-    });
-  }
-
-  public loadProducts(): void {
-    console.log('Loading products...');
-
-    const savedProducts = localStorage.getItem('products');
-    const localProducts: Product[] = savedProducts ? JSON.parse(savedProducts).map((product: any) => ({
-      ...product,
-      quantity: 1,
-      total: product.price,
-      isLocal: true
-    })) : [];
-
-    this.graphqlService.getProducts().subscribe({
-      next: (products) => {
-        console.log('API Products received:', products);
-        const apiProducts = products.map(product => ({
-          ...product,
-          quantity: 1,
-          total: product.price,
-          images: product.images || [],
-          isLocal: false
-        }));
-
-
-        this.productList = [...localProducts, ...apiProducts];
-        this.applyFilters();
-        console.log('Combined products:', this.productList);
-      },
-      error: (err) => {
-        console.error('Error loading API products:', err);
-
-        this.productList = localProducts;
-        this.applyFilters();
-      }
-    });
-  }
-
-  private applyFilters(): void {
-    this.filteredProducts = [...this.productList];
-
-
-    if (this.currentCategory !== 'all') {
-      this.filteredProducts = this.filteredProducts.filter(product => {
-        return product.category?.name.toLowerCase() === this.currentCategory.toLowerCase();
-      });
+      await this.loadCategories();
+    } catch (error) {
+      console.error('Error deleting category:', error);
     }
   }
 
-  handleProductDelete(data: { event: Event, productId: string }): void {
-    const { event, productId } = data;
-    event.stopPropagation();
+  async handleProductDelete(data: { event: Event, productId: string }): Promise<void> {
+    data.event.stopPropagation();
 
-
-    const productIndex = this.productList.findIndex(p => p.id === productId);
+    const productIndex = this.productList.findIndex(p => p.id === data.productId);
     if (productIndex !== -1) {
       const deletedProduct = this.productList[productIndex];
-      this.productList = this.productList.filter(p => p.id !== productId);
+      this.productList = this.productList.filter(p => p.id !== data.productId);
       this.applyFilters();
 
-      if (productId.startsWith('local_')) {
+      if (data.productId.startsWith('local_')) {
 
         const products = JSON.parse(localStorage.getItem('products') || '[]');
-        const updatedProducts = products.filter((p: any) => p.id !== productId);
+        const updatedProducts = products.filter((p: any) => p.id !== data.productId);
         localStorage.setItem('products', JSON.stringify(updatedProducts));
       } else {
 
-        this.graphqlService.deleteProduct(productId).subscribe({
-          error: (error) => {
-            console.error('Error deleting product:', error);
+        try {
+          await firstValueFrom(this.graphqlService.deleteProduct(data.productId));
+        } catch (error) {
+          console.error('Error deleting product:', error);
 
-            this.productList = [...this.productList.slice(0, productIndex), deletedProduct, ...this.productList.slice(productIndex)];
-            this.applyFilters();
-          }
-        });
+          this.productList = [...this.productList.slice(0, productIndex), deletedProduct, ...this.productList.slice(productIndex)];
+          this.applyFilters();
+        }
       }
     }
   }
@@ -192,5 +164,18 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     // Cleanup if needed
+  }
+
+  filter(category: string): void {
+    this.currentCategory = category;
+    this.applyFilters();
+  }
+
+  private applyFilters(): void {
+    this.filteredProducts = this.currentCategory === 'all'
+      ? this.productList
+      : this.productList.filter(product => 
+          product.category?.name.toLowerCase() === this.currentCategory.toLowerCase()
+        );
   }
 }
