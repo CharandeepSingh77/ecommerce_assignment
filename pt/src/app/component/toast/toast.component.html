@@ -1,0 +1,18 @@
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1050">
+  <div *ngIf="(toast$ | async)?.show" 
+       class="toast show" 
+       [ngClass]="(toast$ | async)?.type">
+    <div class="toast-header">
+      <i class="fas me-2" [ngClass]="{
+        'fa-check-circle text-success': (toast$ | async)?.type === 'success',
+        'fa-exclamation-circle text-danger': (toast$ | async)?.type === 'error',
+        'fa-info-circle text-info': (toast$ | async)?.type === 'info'
+      }"></i>
+      <strong class="me-auto">{{(toast$ | async)?.type | titlecase}}</strong>
+      <button type="button" class="btn-close" (click)="hideToast()"></button>
+    </div>
+    <div class="toast-body">
+      {{(toast$ | async)?.message}}
+    </div>
+  </div>
+</div>

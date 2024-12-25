@@ -1,0 +1,395 @@
+.card {
+  height: 60vh;
+  margin: 25px;
+  padding: 25px;
+}
+
+.center img {
+  text-decoration: none;
+  color: inherit;
+  border: none;
+  outline: none;
+  height: 162px;
+  width: 250px;
+  margin: 20px 0px;
+}
+
+h4,
+h6 {
+  font-weight: 400;
+}
+
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.card-table {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: .25rem;
+}
+
+// .center .btn {
+//   font-size: 14px !important;
+//   margin-top: 20px !important;
+//   font-weight: 400;
+//   padding: 12px 72px;
+//   border-radius: 3px !important;
+//   ;
+// }
+
+.cart-product {
+  padding: 15px;
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.table img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  transition: transform 0.3s;
+}
+
+.table img:hover {
+  transform: scale(1.05);
+}
+
+.btn-danger {
+  padding: 8px 12px;
+}
+
+.quantity-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.quantity-value {
+  display: inline-block;
+  min-width: 30px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border-radius: 0.2rem;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+  transition: all 0.2s;
+
+  &:hover {
+      background-color: #5a6268;
+      border-color: #545b62;
+  }
+
+  &:active {
+      background-color: #545b62;
+      border-color: #4e555b;
+  }
+}
+
+.cart-container {
+  padding: 40px 0;
+  min-height: calc(100vh - 200px);
+}
+
+.cart-item {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .item-image {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+
+  .item-details {
+    h5 {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+
+    p {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+
+    .price {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #3498db;
+    }
+  }
+
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    button {
+      background: #f8f9fa;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background: #e9ecef;
+      }
+
+      i {
+        color: #2c3e50;
+      }
+    }
+
+    span {
+      font-weight: 500;
+      color: #2c3e50;
+      min-width: 30px;
+      text-align: center;
+    }
+  }
+
+  .remove-btn {
+    color: #e74c3c;
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background: #fee;
+    }
+
+    i {
+      margin-right: 5px;
+    }
+  }
+}
+
+.cart-summary {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  position: sticky;
+  top: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+  h4 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    color: #666;
+
+    &.total {
+      color: #2c3e50;
+      font-weight: 600;
+      font-size: 1.1rem;
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+      margin-top: 15px;
+    }
+  }
+
+  .checkout-btn {
+    width: 100%;
+    padding: 12px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background: #2980b9;
+    }
+
+    i {
+      margin-right: 8px;
+    }
+  }
+
+  .empty-cart-btn {
+    width: 100%;
+    padding: 12px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background: #c0392b;
+    }
+
+    i {
+      margin-right: 8px;
+    }
+  }
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 60px 0;
+
+  i {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+  }
+
+  p {
+    color: #666;
+    margin-bottom: 25px;
+  }
+
+  .continue-shopping {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background: #2980b9;
+    }
+
+    i {
+      font-size: 1rem;
+      color: white;
+      margin-right: 8px;
+      margin-bottom: 0;
+    }
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 991px) {
+  .table th, .table td {
+      padding: 0.5rem;
+  }
+  
+  .table img {
+      width: 80px;
+      height: 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cart-product {
+      padding: 10px;
+      overflow-x: auto;
+  }
+  
+  .table {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+  }
+  
+  .table thead th {
+      white-space: nowrap;
+  }
+  
+  .table td[style*="width:"] {
+      min-width: 150px;
+  }
+  
+  .quantity-cell {
+      gap: 4px;
+  }
+
+  .quantity-value {
+      min-width: 25px;
+      font-size: 0.875rem;
+  }
+
+  .btn-sm {
+      padding: 0.2rem 0.4rem;
+      font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .center .btn {
+      margin: 5px;
+      padding: 8px 15px;
+      font-size: 14px;
+  }
+  
+  .table img {
+      width: 60px;
+      height: 60px;
+  }
+  
+  .btn-danger {
+      padding: 6px 10px;
+  }
+  
+  .quantity-cell {
+      flex-direction: row;
+      gap: 2px;
+  }
+
+  .btn-sm {
+      padding: 0.15rem 0.3rem;
+      font-size: 0.75rem;
+  }
+}

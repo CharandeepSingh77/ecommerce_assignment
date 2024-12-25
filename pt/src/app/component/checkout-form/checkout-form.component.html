@@ -1,0 +1,57 @@
+<div class="checkout-form">
+  <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-control" formControlName="name" placeholder="Enter your full name">
+        <div class="invalid-feedback" *ngIf="checkoutForm.get('name')?.touched && checkoutForm.get('name')?.invalid">
+          Please enter your name
+        </div>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" formControlName="email" placeholder="Enter your email">
+        <div class="invalid-feedback" *ngIf="checkoutForm.get('email')?.touched && checkoutForm.get('email')?.invalid">
+          Please enter a valid email address
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" class="form-control" formControlName="phone" placeholder="Enter your phone number">
+        <div class="invalid-feedback" *ngIf="checkoutForm.get('phone')?.touched && checkoutForm.get('phone')?.invalid">
+          Please enter a valid 10-digit phone number
+        </div>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">ZIP Code</label>
+        <input type="text" class="form-control" formControlName="zipCode" placeholder="Enter ZIP code">
+        <div class="invalid-feedback" *ngIf="checkoutForm.get('zipCode')?.touched && checkoutForm.get('zipCode')?.invalid">
+          Please enter a valid 6-digit ZIP code
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Address</label>
+      <textarea class="form-control" formControlName="address" rows="2" placeholder="Enter your address"></textarea>
+      <div class="invalid-feedback" *ngIf="checkoutForm.get('address')?.touched && checkoutForm.get('address')?.invalid">
+        Please enter your address
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">City</label>
+      <input type="text" class="form-control" formControlName="city" placeholder="Enter your city">
+      <div class="invalid-feedback" *ngIf="checkoutForm.get('city')?.touched && checkoutForm.get('city')?.invalid">
+        Please enter your city
+      </div>
+    </div>
+
+    <div class="d-grid">
+      <button type="submit" class="btn btn-primary">Complete Checkout</button>
+    </div>
+  </form>
+</div>
