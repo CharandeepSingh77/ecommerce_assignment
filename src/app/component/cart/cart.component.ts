@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CartService } from '../../service/cart.service';
 import { ToastService } from '../../service/toast.service';
 import { Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { CartItem } from '../../models/cart.types';
 
 @Component({
@@ -31,23 +30,23 @@ export class CartComponent implements OnInit {
     });
   }
 
-  async removeItem(item: CartItem): Promise<void> {
-    await firstValueFrom(this.cartService.removeCartItem(item));
+  removeItem(item: CartItem): void {
+    this.cartService.removeCartItem(item);
     this.toastService.showToast('Item removed from cart', 'success');
   }
 
-  async emptyCart(): Promise<void> {
-    await firstValueFrom(this.cartService.removeAllCart());
+  emptyCart(): void {
+    this.cartService.removeAllCart();
     this.toastService.showToast('Cart cleared', 'success');
   }
 
-  async increaseQuantity(item: CartItem): Promise<void> {
-    await firstValueFrom(this.cartService.updateQuantity(item, item.quantity + 1));
+  increaseQuantity(item: CartItem): void {
+    this.cartService.updateQuantity(item, item.quantity + 1);
   }
 
-  async decreaseQuantity(item: CartItem): Promise<void> {
+  decreaseQuantity(item: CartItem): void {
     if (item.quantity > 1) {
-      await firstValueFrom(this.cartService.updateQuantity(item, item.quantity - 1));
+      this.cartService.updateQuantity(item, item.quantity - 1);
     }
   }
 
@@ -59,14 +58,14 @@ export class CartComponent implements OnInit {
     }
   }
 
-  async onFormSubmit(formData: any): Promise<void> {
+  onFormSubmit(formData: any): void {
     if (this.products.length === 0) {
       this.toastService.showToast('Your cart is empty', 'error');
       return;
     }
 
     try {
-      await firstValueFrom(this.cartService.removeAllCart());
+      this.cartService.removeAllCart();
       this.toastService.showToast('Order placed successfully!', 'success');
       this.showCheckoutForm = false;
       this.router.navigate(['/products']);

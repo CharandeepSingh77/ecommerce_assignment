@@ -37,10 +37,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadCategories();
     this.loadProducts();
-
-    setTimeout(() => {
-      this.initializeProductModal();
-    }, 1000);
+    this.initializeProductModal();
   }
 
   private initializeProductModal(): void {
@@ -59,8 +56,6 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   async loadProducts(): Promise<void> {
-    console.log('Loading products...');
-
     const savedProducts = localStorage.getItem('products');
     const localProducts: Product[] = savedProducts ? JSON.parse(savedProducts).map((product: any) => ({
       ...product,
@@ -71,7 +66,6 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
     try {
       const products = await firstValueFrom(this.graphqlService.getProducts());
-      console.log('API Products received:', products);
       const apiProducts = products.map(product => ({
         ...product,
         quantity: 1,
@@ -82,10 +76,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
       this.productList = [...localProducts, ...apiProducts];
       this.applyFilters();
-      console.log('Combined products:', this.productList);
     } catch (err) {
       console.error('Error loading API products:', err);
-
       this.productList = localProducts;
       this.applyFilters();
     }
@@ -94,7 +86,30 @@ export class ProductsComponent implements OnInit, OnDestroy {
   async loadCategories(): Promise<void> {
     try {
       const categories = await firstValueFrom(this.graphqlService.getCategories());
-      this.categories = categories;
+      
+      // Initially filter to show only Electronics from default categories
+     
+      let filteredCategories = categories.filter(category => 
+        category.name.toLowerCase().includes('electronic')
+      );
+
+      // Get user-created category IDs from localStorage
+      const userCreatedIds = localStorage.getItem('userCreatedCategoryIds');
+      if (userCreatedIds) {
+        const savedIds = JSON.parse(userCreatedIds);
+        // Add user-created categories from API results
+        const userCategories = categories.filter(cat => savedIds.includes(cat.id));
+        filteredCategories = [...filteredCategories, ...userCategories];
+      }
+      
+      this.categories = filteredCategories;
+
+      // If current category no longer exists, switch to 'all'
+      if (this.currentCategory !== 'all' && 
+          !this.categories.some(c => c.name.toLowerCase() === this.currentCategory.toLowerCase())) {
+        this.currentCategory = 'all';
+      }
+
       this.applyFilters();
     } catch (error) {
       console.error('Error loading categories:', error);
@@ -120,13 +135,28 @@ export class ProductsComponent implements OnInit, OnDestroy {
     event?.stopPropagation();
 
     try {
-      await firstValueFrom(this.graphqlService.deleteCategory(categoryId));
-      if (categoryId === 'default_electronics' && this.currentCategory === 'electronics') {
-        this.currentCategory = 'all';
+      const result = await firstValueFrom(this.graphqlService.deleteCategory(categoryId));
+      
+      if (result) {
+      
+        if (this.categories.find(c => c.id === categoryId)?.name.toLowerCase() === this.currentCategory.toLowerCase()) {
+          this.currentCategory = 'all';
+        }
+        
+        // Remove ID from localStorage if it was a user-created category
+        const userCreatedIds = localStorage.getItem('userCreatedCategoryIds');
+        if (userCreatedIds) {
+          const savedIds = JSON.parse(userCreatedIds);
+          const updatedIds = savedIds.filter((id: string) => id !== categoryId);
+          localStorage.setItem('userCreatedCategoryIds', JSON.stringify(updatedIds));
+        }
+        
+        // Reload categories
+        this.loadCategories();
       }
-      await this.loadCategories();
     } catch (error) {
       console.error('Error deleting category:', error);
+      alert('Failed to delete category. Please try again.');
     }
   }
 
@@ -163,7 +193,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Cleanup if needed
+    
   }
 
   filter(category: string): void {
@@ -172,10 +202,16 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   private applyFilters(): void {
+    if (!this.productList || !this.categories) {
+      this.filteredProducts = [];
+      return;
+    }
+
     this.filteredProducts = this.currentCategory === 'all'
       ? this.productList
-      : this.productList.filter(product => 
-          product.category?.name.toLowerCase() === this.currentCategory.toLowerCase()
-        );
+      : this.productList.filter(product => {
+          const productCategory = product.category?.name.toLowerCase();
+          return productCategory === this.currentCategory.toLowerCase();
+        });
   }
 }

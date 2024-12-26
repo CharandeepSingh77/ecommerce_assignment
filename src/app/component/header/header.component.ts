@@ -27,9 +27,5 @@ export class HeaderComponent implements OnInit {
     this.cartService.search.next(this.searchTerm);
   }
 
-  // addNewProduct(): void {
 
-  //   console.log('Add new product clicked');
-
-  // }
 }
